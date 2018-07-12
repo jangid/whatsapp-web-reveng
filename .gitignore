@@ -65,4 +65,4 @@ backend/undecodable_msgs
 log.txt
 
 # direnv environment
-.envrc
+.direnv

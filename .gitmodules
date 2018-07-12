@@ -1,0 +1,3 @@
+[submodule "wa"]
+	path = wa
+	url = git@bitbucket.org:rashtrabharat/wa.git
