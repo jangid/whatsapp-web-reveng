@@ -9,8 +9,6 @@ This project intends to provide a complete description and re-implementation of 
 Before you can run the application, make sure that you have the following software installed:
 
 - Node.js (at least version 8, as the `async` `await` syntax is used)
-- the CSS preprocessor [Ruby Sass](http://sass-lang.com/ruby-sass/) (which in turn you need [Ruby](https://www.ruby-lang.org/) for)
-  - `gem install sass` for Windows and `sudo gem install sass` for Linux and OSX.
 - Python 2.7 with the following `pip` packages installed:
   - `websocket-client` and `git+https://github.com/dpallot/simple-websocket-server.git` for acting as WebSocket server and client.
   - `curve25519-donna` and `pycrypto` for the encryption stuff.
@@ -18,7 +16,7 @@ Before you can run the application, make sure that you have the following softwa
   - `protobuf` for reading and writing the binary conversation format.
 - Note: On Windows `curve25519-donna` requires [Microsoft Visual C++ 9.0](http://aka.ms/vcpython27) and you need to copy [`stdint.h`](windows) into `C:\Users\YOUR USERNAME\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0\VC\include`.
 
-Before starting the application for the first time, run `npm install` to install all Node and `pip install -r requirements.txt` for all Python dependencies.
+Before starting the application for the first time, run `npm install -f` to install all Node and `pip install -r requirements.txt` for all Python dependencies.
 
 Lastly, to finally launch it, just run `npm start` on Linux based OS's and `npm run win` on Windows. Using fancy `concurrently` and `nodemon` magic, all three local components will be started after each other and when you edit a file, the changed module will automatically restart to apply the changes.
 
@@ -30,11 +28,15 @@ A recent addition is a version of the decryption routine translated to in-browse
 
 ### Rust
 
-With [whatsappweb-rs](https://github.com/wiomoc/whatsappweb-rs), @wiomoc created a WhatsApp Web client in Rust.
+With [whatsappweb-rs](https://github.com/wiomoc/whatsappweb-rs), [wiomoc](https://github.com/wiomoc) created a WhatsApp Web client in Rust.
 
 ### Go
 
-@Rhymen created [go-whatsapp](https://github.com/Rhymen/go-whatsapp), a Go package that implements the WhatsApp Web API.
+[Rhymen](https://github.com/Rhymen) created [go-whatsapp](https://github.com/Rhymen/go-whatsapp), a Go package that implements the WhatsApp Web API.
+
+### Clojure
+
+[vzaramel](https://github.com/vzaramel) created [whatsappweb-clj](https://github.com/vzaramel/whatsappweb-clj), a Clojure library the implements the WhatsApp Web API.
 
 ## Application architecture
 The project is organized in the following way. Note the used ports and make sure that they are not in use elsewhere before starting the application.
@@ -54,9 +56,9 @@ To log in at an open websocket, follow these steps:
 
 1. Generate your own `clientId`, which needs to be 16 base64-encoded bytes (i.e. 25 characters). This application just uses 16 random bytes, i.e. `base64.b64encode(os.urandom(16))` in Python.
 2. Decide for a tag for your message, which is more or less arbitrary (see above). This application uses the current timestamp (in seconds) for that. Remember this tag for later.
-3. The message you send to the websocket looks like this: `messageTag,["admin","init",[0,2,7314],["Long browser description","ShortBrowserDesc"],"clientId",true]`.
+3. The message you send to the websocket looks like this: `messageTag,["admin","init",[0,3,416],["Long browser description","ShortBrowserDesc"],"clientId",true]`.
 	- Obviously, you need to replace `messageTag` and `clientId` by the values you chose before
-	- The `[0,2,7314]` part specifies the current WhatsApp Web version. The last value changes frequently. It should be quite backwards-compatible though.
+	- The `[0,3,416]` part specifies the current WhatsApp Web version. The last value changes frequently. It should be quite backwards-compatible though.
 	- `"Long browser description"` is an arbitrary string that will be shown in the WhatsApp app in the list of registered WhatsApp Web clients after you scan the QR code.
 	- `"ShortBrowserDesc"` has not been observed anywhere yet but is arbitrary as well.
 4. After a few moments, your websocket will receive a message in the specified format with the message tag _you chose in step 2_. The JSON object of this message has the following attributes:
@@ -303,7 +305,7 @@ Unfortunately, these binary ones cannot be looked at using the Chrome developer 
 	- `filetype` can be one of `image`, `audio`, `document` or `video`
 9. Create a multipart-form with the following fields:
 	- fieldname: `hash`: `fileEncSha256B64`
-	- fieldname: `file`, filename: `blob`: `enc`
+	- fieldname: `file`, filename: `blob`: `enc+mac`  
 10. Do a POST request to the url with query string `?f=j` and the correct `content-type` and the multipart-form, WhatsApp will respond with the download url for the file.
 11. All relevant information to send the file are now generated, just build the proto and send it.
 
