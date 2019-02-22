@@ -207,7 +207,7 @@ wss.on("connection", function(clientWebsocketRaw, req) {
 
 
 
-app.use(express.static("wa"));
+app.use(express.static("client"));
 
 app.listen(2018, function() {
 	console.log("whatsapp-web-reveng HTTP server listening on port 2018");
